@@ -31,7 +31,8 @@ def create_all_tables_metadata():
         "Profesores": ["Código", "Nombre", "Documento", "Teléfono", "Correo", "Proyecto Curricular"],
         "Administrativos": ["Código", "Nombre", "Documento", "Teléfono", "Correo", "Cargo"],
         "Espacios_Academicos": ["Código", "Nombre", "Grupo", "Clasificación", "Créditos"],
-        "Biblioteca": ["Código", "Título", "Autor", "Año", "Estado"]
+        "Biblioteca": ["Código", "Título", "Autor", "Año", "Estado"],
+        "Carrera": ["Código", "Nombre", "Facultad",]
     }
     
     for table, fields in tables.items():
