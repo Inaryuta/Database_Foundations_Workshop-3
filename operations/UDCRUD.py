@@ -59,20 +59,6 @@ class UDSQL:
 
         return f"Registro insertado con código {new_code}"
 
-    def read(self, table):
-        table_path = os.path.join(self.tables_dir, f"{table}.udsql")
-        if not os.path.exists(table_path):
-            return f"Error: La tabla '{table}' no existe o no tiene datos."
-        with open(table_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        if len(lines) <= 1:
-            return []  # Solo cabecera, sin datos
-        data = []
-        # Omitir la cabecera
-        for line in lines[1:]:
-            data.append(line.strip().split("|"))
-        return data
-
     def update(self, table, code, new_values):
         if table not in self.metadata:
             return f"Error: La tabla '{table}' no existe."
