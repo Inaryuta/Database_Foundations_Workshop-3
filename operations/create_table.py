@@ -27,7 +27,7 @@ def create_all_tables():
         "Administrativos": ["ID", "Nombre", "Documento", "Teléfono", "Correo", "Cargo"],
         "Espacios_Academicos": ["ID", "Nombre", "Grupo", "Clasificación", "Créditos"],
         "Biblioteca": ["ID", "Título", "Autor", "Año", "Estado"],
-        "Carrera": ["Codigo", "Nombre", "Facultad"]
+        "Carrera": ["ID", "Codigo", "Nombre", "Facultad"]
     }
     
     for table, fields in tables.items():

@@ -1,2 +1,11 @@
-ID|Nombre|Documento|Teléfono|Correo|Cargo
-1|Sofia|1224658145|3159452315|sofia@gmail.com|Secretaria
+ID|Nombre|Documento|Teléfono|Correo|Cargo  
+1|Sofia Perez|1224658145|3159452315|sofia@gmail.com|Secretario
+2|Carlos Ramirez|1002547896|3107845123|carlosr@empresa.com|Analista
+3|Andrea Gomez|1087456321|3124567890|andreag@universidad.edu|Secretario
+4|Luis Torres|1036589745|3189654789|luis.t@corporativo.net|Gerente  
+5|Maria Castillo|1012458796|3147859632|maria.castillo@hospital.com|Ingeniero  
+6|Fernando Lopez|1078945632|3164785214|fernandol@gmail.com|Ingeniero  
+7|Paula Mendoza|1096547823|3114789652|paulam@empresa.com|Administrador  
+8|Javier Rios|1065874125|3196548723|javierr@consultora.com|Contador  
+9|Camila Estrada|1054789623|3136589741|camila.estrada@banco.com|Ingeniero 
+10|Ricardo Pineda|1047852369|3178452693|ricardo.p@tecnologia.com|Desarrollador 

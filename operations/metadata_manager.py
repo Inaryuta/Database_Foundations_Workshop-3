@@ -32,7 +32,7 @@ def create_all_tables_metadata():
         "Administrativos": ["ID", "Nombre", "Documento", "Teléfono", "Correo", "Cargo"],
         "Espacios_Academicos": ["ID", "Nombre", "Grupo", "Clasificación", "Créditos"],
         "Biblioteca": ["ID", "Título", "Autor", "Año", "Estado"],
-        "Carrera": ["ID", "Nombre", "Facultad", "Estado"]  # Nueva tabla Carrera
+        "Carrera": ["ID", "Codigo", "Nombre", "Facultad", "Estado"]
     }
     
     for table, fields in tables.items():
