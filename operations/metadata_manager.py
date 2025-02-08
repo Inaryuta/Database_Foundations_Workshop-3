@@ -27,11 +27,11 @@ def add_table_to_metadata(table_name, fields):
 # Crear todas las tablas en la metadata
 def create_all_tables_metadata():
     tables = {
-        "Estudiantes": ["ID", "Código", "Nombre", "Documento", "Teléfono", "Dirección", "Correo", "Estado"],
-        "Profesores": ["ID", "Nombre", "Documento", "Teléfono", "Correo", "Proyecto Curricular"],
-        "Administrativos": ["ID", "Nombre", "Documento", "Teléfono", "Correo", "Cargo"],
-        "Espacios_Academicos": ["ID", "Nombre", "Grupo", "Clasificación", "Créditos"],
-        "Biblioteca": ["ID", "Título", "Autor", "Año", "Estado"],
+        "Estudiantes": ["ID", "Codigo", "Nombre", "Documento", "Telefono", "Direccion", "Correo", "Estado"],
+        "Profesores": ["ID", "Nombre", "Documento", "Telefono", "Correo", "Proyecto Curricular"],
+        "Administrativos": ["ID", "Nombre", "Documento", "Telefono", "Correo", "Cargo"],
+        "Espacios_Academicos": ["ID", "Nombre", "Grupo", "Clasificacion", "Creditos"],
+        "Biblioteca": ["ID", "Titulo", "Autor", "Año", "Estado"],
         "Carrera": ["ID", "Codigo", "Nombre", "Facultad", "Estado"]
     }
     
