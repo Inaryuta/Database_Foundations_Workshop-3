@@ -22,84 +22,120 @@ class UDSQL:
     def insert(self, table, values):
         if table not in self.metadata:
             return f"Error: La tabla '{table}' no existe."
-        
+
         columns = self.metadata[table]
-        table_path = os.path.join(self.tables_dir, f"{table}.udsql")
-        
         if len(values) != len(columns) - 1:
             return "Error: Número de valores incorrecto."
-        
+
+        table_path = os.path.join(self.tables_dir, f"{table}.udsql")
         last_code = 0
+
         if os.path.exists(table_path):
-            with open(table_path, 'r', encoding='utf-8') as f:
+            with open(table_path, "r", encoding="utf-8") as f:
                 lines = f.readlines()
-                if lines:
-                    last_line = lines[-1].strip().split("|")
-                    last_code = int(last_line[0])
-        
-        new_code = str(last_code + 1)
-        values.insert(0, new_code)
-        
-        with open(table_path, 'a', encoding='utf-8') as f:
-            f.write("|".join(values) + '\n')
-        
-        return f"Inserción exitosa. Código asignado: {new_code}"
+            # Recorremos todas las líneas para obtener el último código válido
+            for line in lines:
+                parts = line.strip().split("|")
+                if not parts:
+                    continue
+                if parts[0] == "Código":
+                    continue
+                try:
+                    code = int(parts[0])
+                    last_code = code
+                except ValueError:
+                    continue
 
-    def update(self, table, codigo, column, new_value):
+        new_code = last_code + 1
+
+        # Si el archivo no existe o está vacío, se crea y se escribe la cabecera
+        if not os.path.exists(table_path) or os.path.getsize(table_path) == 0:
+            with open(table_path, "w", encoding="utf-8") as f:
+                f.write("|".join(columns) + "\n")
+                f.write("|".join([str(new_code)] + values) + "\n")
+        else:
+            with open(table_path, "a", encoding="utf-8") as f:
+                f.write("|".join([str(new_code)] + values) + "\n")
+
+        return f"Registro insertado con código {new_code}"
+
+    def read(self, table):
+        table_path = os.path.join(self.tables_dir, f"{table}.udsql")
+        if not os.path.exists(table_path):
+            return f"Error: La tabla '{table}' no existe o no tiene datos."
+        with open(table_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        if len(lines) <= 1:
+            return []  # Solo cabecera, sin datos
+        data = []
+        # Omitir la cabecera
+        for line in lines[1:]:
+            data.append(line.strip().split("|"))
+        return data
+
+    def update(self, table, code, new_values):
         if table not in self.metadata:
             return f"Error: La tabla '{table}' no existe."
-        
         columns = self.metadata[table]
         table_path = os.path.join(self.tables_dir, f"{table}.udsql")
-        
-        if column not in columns:
-            return "Error: La columna no existe."
-        
-        col_index = columns.index(column)
-        codigo_index = 0  
+        if not os.path.exists(table_path):
+            return f"Error: La tabla '{table}' no existe en el sistema de archivos."
+
+        with open(table_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        header = lines[0]
         updated = False
-        
-        if not os.path.exists(table_path):
-            return "Error: No hay datos en la tabla."
-        
-        with open(table_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        
-        with open(table_path, 'w', encoding='utf-8') as f:
-            for line in lines:
-                values = line.strip().split("|")
-                if values[codigo_index] == codigo:
-                    values[col_index] = new_value
-                    updated = True
-                f.write("|".join(values) + '\n')
-        
-        return "Actualización exitosa." if updated else "Error: Código no encontrado."
+        new_lines = [header]
 
-    def delete(self, table, column, value):
+        for line in lines[1:]:
+            parts = line.strip().split("|")
+            try:
+                current_code = int(parts[0])
+            except ValueError:
+                new_lines.append(line)
+                continue
+            if current_code == code:
+                new_lines.append("|".join([str(code)] + new_values) + "\n")
+                updated = True
+            else:
+                new_lines.append(line)
+
+        if not updated:
+            return f"Error: Registro con código {code} no encontrado."
+        with open(table_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+        return f"Registro con código {code} actualizado."
+
+    def delete(self, table, code):
         if table not in self.metadata:
             return f"Error: La tabla '{table}' no existe."
-        
-        columns = self.metadata[table]
         table_path = os.path.join(self.tables_dir, f"{table}.udsql")
-        
-        if column not in columns:
-            return "Error: La columna no existe."
-        
-        col_index = columns.index(column)
-        deleted = False
-        
         if not os.path.exists(table_path):
-            return "Error: No hay datos en la tabla."
-        
-        with open(table_path, 'r', encoding='utf-8') as f:
+            return f"Error: La tabla '{table}' no existe en el sistema de archivos."
+
+        with open(table_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
-        
-        with open(table_path, 'w', encoding='utf-8') as f:
-            for line in lines:
-                values = line.strip().split("|")
-                if values[col_index] == value:
-                    deleted = True
-                else:
-                    f.write(line)
-        
-        return "Eliminación exitosa." if deleted else "Error: Valor no encontrado."
+
+        header = lines[0]
+        deleted = False
+        new_lines = [header]
+
+        for line in lines[1:]:
+            parts = line.strip().split("|")
+            try:
+                current_code = int(parts[0])
+            except ValueError:
+                new_lines.append(line)
+                continue
+            if current_code == code:
+                deleted = True
+                continue  # Omite la línea
+            new_lines.append(line)
+
+        if not deleted:
+            return f"Error: Registro con código {code} no encontrado."
+        with open(table_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+        return f"Registro con código {code} eliminado."
+
