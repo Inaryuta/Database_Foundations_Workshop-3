@@ -1,6 +1,5 @@
 import os
 import pickle
-import ast
 
 class UDSQL:
     def __init__(self, db_name='metadata.pkl', tables_dir='tables'):
@@ -58,7 +57,7 @@ class UDSQL:
             with open(table_path, "a", encoding="utf-8") as f:
                 f.write("|".join([str(new_code)] + values) + "\n")
 
-        return f"Registro insertado con código {new_code}"
+        return f"Registro insertado con ID {new_code}"
 
     def update(self, table, code, new_values):
         if table not in self.metadata:
@@ -89,10 +88,10 @@ class UDSQL:
                 new_lines.append(line)
 
         if not updated:
-            return f"Error: Registro con código {code} no encontrado."
+            return f"Error: Registro con ID {code} no encontrado."
         with open(table_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
-        return f"Registro con código {code} actualizado."
+        return f"Registro con ID {code} actualizado."
 
     def delete(self, table, code):
         if table not in self.metadata:
@@ -121,10 +120,10 @@ class UDSQL:
             new_lines.append(line)
 
         if not deleted:
-            return f"Error: Registro con código {code} no encontrado."
+            return f"Error: Registro con ID {code} no encontrado."
         with open(table_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
-        return f"Registro con código {code} eliminado."
+        return f"Registro con ID {code} eliminado."
 
 
     def select(self, table, where_clause=None):
