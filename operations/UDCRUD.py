@@ -1,5 +1,6 @@
 import os
 import pickle
+import ast
 
 class UDSQL:
     def __init__(self, db_name='metadata.pkl', tables_dir='tables'):
@@ -137,26 +138,23 @@ class UDSQL:
         with open(table_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
 
-        columns = self.metadata[table]
+        if not lines:
+            return []
+
         header = lines[0].strip().split("|")
         results = []
 
-        for line in lines[1:]:
-            row = line.strip().split("|")
-            if len(row) != len(header):  # Handle potential inconsistencies
-                continue
-
-            data = dict(zip(header, row))  # Create a dictionary for easy access
-
-            if where_clause is None:  # Select all if no where clause
-                results.append(data)
-                continue
+        # Función segura para evaluar condiciones
+        def evaluate_condition(row, where_clause):
+            safe_globals = {
+                "__builtins__": None
+            }
+            safe_locals = {col: row[col] for col in header}
 
             try:
-                if eval(where_clause, {}, data):
-                    results.append(data)
-            except (NameError, SyntaxError, TypeError):
-                return "Error: Invalid where clause."
+                return eval(where_clause, safe_globals, safe_locals)
+            except Exception:
+                return False
 
         for line in lines[1:]:
             row = line.strip().split("|")
@@ -165,17 +163,12 @@ class UDSQL:
 
             data = dict(zip(header, row))
 
-            if where_clause is None:
-                results.append(data)
-                continue
+            # Convertir valores numéricos para comparación correcta
+            for key in data:
+                if data[key].isdigit():
+                    data[key] = int(data[key])
 
-            try:
-                # Utilizamos ast.literal_eval para evaluar expresiones de forma segura
-                # y soportar operadores lógicos AND, OR y NOT.
-                # Ejemplo: "data['Estado'] == 'Activo' and data['Código'] > 10"
-                if ast.literal_eval(where_clause, {}, data):
-                    results.append(data)
-            except (NameError, SyntaxError, TypeError, ValueError):
-                return "Error: Invalid where clause."
+            if where_clause is None or evaluate_condition(data, where_clause):
+                results.append(data)
 
         return results
