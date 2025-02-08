@@ -125,3 +125,57 @@ class UDSQL:
             f.writelines(new_lines)
         return f"Registro con código {code} eliminado."
 
+
+    def select(self, table, where_clause=None):
+        if table not in self.metadata:
+            return f"Error: La tabla '{table}' no existe."
+
+        table_path = os.path.join(self.tables_dir, f"{table}.udsql")
+        if not os.path.exists(table_path):
+            return f"Error: La tabla '{table}' no existe en el sistema de archivos."
+
+        with open(table_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        columns = self.metadata[table]
+        header = lines[0].strip().split("|")
+        results = []
+
+        for line in lines[1:]:
+            row = line.strip().split("|")
+            if len(row) != len(header):  # Handle potential inconsistencies
+                continue
+
+            data = dict(zip(header, row))  # Create a dictionary for easy access
+
+            if where_clause is None:  # Select all if no where clause
+                results.append(data)
+                continue
+
+            try:
+                if eval(where_clause, {}, data):
+                    results.append(data)
+            except (NameError, SyntaxError, TypeError):
+                return "Error: Invalid where clause."
+
+        for line in lines[1:]:
+            row = line.strip().split("|")
+            if len(row) != len(header):
+                continue
+
+            data = dict(zip(header, row))
+
+            if where_clause is None:
+                results.append(data)
+                continue
+
+            try:
+                # Utilizamos ast.literal_eval para evaluar expresiones de forma segura
+                # y soportar operadores lógicos AND, OR y NOT.
+                # Ejemplo: "data['Estado'] == 'Activo' and data['Código'] > 10"
+                if ast.literal_eval(where_clause, {}, data):
+                    results.append(data)
+            except (NameError, SyntaxError, TypeError, ValueError):
+                return "Error: Invalid where clause."
+
+        return results
